@@ -40,7 +40,7 @@ export const signup = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error("Error in signing up:", error.message || error);
+    console.error("Error in signing up = ", error.message || error);
     res.status(500).json({ message: "Server Error" });
   }
 };
@@ -70,12 +70,17 @@ export const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error in logging in:", error.message || error);
+    console.error("Error in logging in = ", error.message || error);
     res.status(500).json({ message: " Internal Server Error" }); 
   }
 };
 
 export const logout = (req, res) => {
-  console.log("Logout Route");
-  res.send("Logout Route");
+  try {
+    res.cookie("token", "", {maxAge: 0});
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Error in logging out = ", error.message || error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
