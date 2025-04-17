@@ -3,24 +3,22 @@ import { User } from '../models/user.models.js';
 
 export const protectRoute = async (req, res, next) => {
     try {
-      const token = req.cookies.jwt;
+      const token = req.headers.authorization?.split(" ")[1];
       
       if (!token) {
         return res.status(401).json({ message: "Unauthorised - Token Unavailable" });
       }
   
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id).select("-password");
   
-      console.log("Decoded JWT =", decoded); // 🔍 Log the decoded token
+      console.log("Decoded JWT =", decoded);
   
       if (!decoded || !decoded.id) {
         return res.status(401).json({ message: "Unauthorised - Invalid Token Payload" });
       }
-  
-      const user = await User.findById(decoded.id).select("-password");
-  
       if (!user) {
-        console.log("No user found for ID =", decoded.id); // 🔍 Log failed lookup
+        console.log("No user found for ID =", decoded.id); 
         return res.status(404).json({ message: "User not found" });
       }
   
