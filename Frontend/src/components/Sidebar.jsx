@@ -6,7 +6,6 @@ import { Users } from "lucide-react";
 
 const Sidebar = () => {
     const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
-
     const { onlineUsers } = useAuthStore();
     const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
@@ -14,8 +13,12 @@ const Sidebar = () => {
         getUsers();
     }, [getUsers]);
 
+    const onlineUserIds = Array.isArray(onlineUsers) && onlineUsers[0]?._id
+        ? onlineUsers.map((user) => user._id)
+        : onlineUsers;
+
     const filteredUsers = showOnlineOnly
-        ? users.filter((user) => onlineUsers.includes(user._id))
+        ? users.filter((user) => onlineUserIds.includes(user._id))
         : users;
 
     if (isUsersLoading) return <SidebarSkeleton />;
@@ -38,7 +41,7 @@ const Sidebar = () => {
                         />
                         <span className="text-sm">Show online only</span>
                     </label>
-                    <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
+                    <span className="text-xs text-zinc-500">({onlineUserIds.length} online)</span>
                 </div>
             </div>
 
@@ -50,12 +53,12 @@ const Sidebar = () => {
                         className={`w-full p-3 flex items-center gap-3
                                     hover:bg-base-300 transition-colors
                                     ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}`}>
-                                    <div className="relative mx-auto lg:mx-0">
+                        <div className="relative mx-auto lg:mx-0">
                             <img
                                 src={user.profilePic || "/avatar.png"}
                                 alt={user.name}
                                 className="size-12 object-cover rounded-full"/>
-                            {onlineUsers.includes(user._id) && (
+                            {onlineUserIds.includes(user._id) && (
                                 <span
                                     className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-900"/>
                             )}
@@ -65,7 +68,7 @@ const Sidebar = () => {
                         <div className="hidden lg:block text-left min-w-0">
                             <div className="font-medium truncate">{user.fullName}</div>
                             <div className="text-sm text-zinc-400">
-                                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                                {onlineUserIds.includes(user._id) ? "Online" : "Offline"}
                             </div>
                         </div>
                     </button>
@@ -77,4 +80,5 @@ const Sidebar = () => {
         </aside>
     );
 };
+
 export default Sidebar;
