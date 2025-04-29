@@ -1,5 +1,6 @@
 import { useChatStore } from "../store/useChatStore";
 import { useEffect, useRef } from "react";
+import { debounce } from "lodash";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -19,6 +20,13 @@ const ChatContainer = () => {
     const { authUser } = useAuthStore();
     const messageEndRef = useRef(null);
 
+    // Debounced scroll to end logic
+    const scrollToEnd = debounce(() => {
+        if (messageEndRef.current) {
+            messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, 200); // Debounce delay in milliseconds
+
     useEffect(() => {
         getMessages(selectedUser._id);
 
@@ -28,10 +36,8 @@ const ChatContainer = () => {
     }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
     useEffect(() => {
-        if (messageEndRef.current && messages) {
-            messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
+        scrollToEnd();
+    }, [messages, scrollToEnd]);
 
     if (isMessagesLoading) {
         return (
@@ -53,7 +59,7 @@ const ChatContainer = () => {
                         key={message._id}
                         className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
                         ref={messageEndRef}>
-                        <div className=" chat-image avatar">
+                        <div className="chat-image avatar">
                             <div className="size-10 rounded-full border">
                                 <img
                                     src={
@@ -86,4 +92,5 @@ const ChatContainer = () => {
         </div>
     );
 };
+
 export default ChatContainer;
